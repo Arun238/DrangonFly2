@@ -1,31 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit, PLATFORM_ID, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-
-// Angular Material Modules
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
+import { isPlatformBrowser } from '@angular/common';  // Import for platform check
 
 @Component({
   selector: 'app-loginpage',
-  standalone: true,
   templateUrl: './loginpage.component.html',
-  styleUrls: ['./loginpage.component.css'],
-  imports: [
-    ReactiveFormsModule, 
-    MatButtonModule, 
-    MatCardModule, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatIconModule,CommonModule
-  ]
+  styleUrls: ['./loginpage.component.css']
 })
-export class LoginpageComponent implements OnInit, OnDestroy {
-
+export class LoginpageComponent implements OnInit, OnDestroy, AfterViewInit {
   images: string[] = [
     'assets/thumbnail_image1.png',
     'assets/thumbnail_image2.png',
@@ -35,42 +18,63 @@ export class LoginpageComponent implements OnInit, OnDestroy {
   interval: any;
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) { 
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private cdRef: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: any // Inject platformId to check if it's running in browser or SSR
+  ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      email: ["", [Validators.required, Validators.email]],
+      password: ["", [Validators.required]]
     });
   }
 
   ngOnInit(): void {
-    this.startAutoslide();
+    // Initialization logic goes here (only runs on the client-side)
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      // Delay the auto-slide only when running in the browser (not SSR)
+      setTimeout(() => {
+        this.startAutoslide();
+      }, 500); // Delay to allow rendering to complete
+    }
   }
 
   ngOnDestroy(): void {
     if (this.interval) {
-      clearInterval(this.interval);
+      clearInterval(this.interval); // Clear the interval to prevent memory leaks
     }
   }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      const hardcodedEmail = 'admin@gmail.com';
-      const hardcodedPassword = 'admin123';
+      const hardcodedEmail = 'admin@dragonfly.com';
+      const hardcodedPassword = 'admin';
 
       if (email === hardcodedEmail && password === hardcodedPassword) {
-        alert('Login successful');
+        console.log("Logged in successfully");
         this.router.navigate(['/home']);
       } else {
-        alert('Invalid credentials');
+        console.log("Invalid credentials");
       }
     }
   }
 
   startAutoslide(): void {
+    // Ensure no existing interval is running before starting a new one
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
     this.interval = setInterval(() => {
       this.nextImage();
-    }, 2000);
+      // Trigger change detection manually
+      this.cdRef.detectChanges();
+    }, 2000); // Change images every 3 seconds
   }
 
   nextImage(): void {
@@ -78,12 +82,22 @@ export class LoginpageComponent implements OnInit, OnDestroy {
   }
 
   previousImage(): void {
-    this.currentindex = (this.currentindex - 1 + this.images.length) % this.images.length;
+    this.currentindex =
+      (this.currentindex - 1 + this.images.length) % this.images.length; // Handle negative indices correctly
+  }
+
+  pauseSlide(): void {
+    if (this.interval) {
+      clearInterval(this.interval); // Pause the auto-slide
+    }
+  }
+
+  resumeSlide(): void {
+    this.startAutoslide(); // Resume the auto-slide
   }
 
   goToSlide(index: number): void {
     this.currentindex = index;
-    clearInterval(this.interval);
-    this.startAutoslide();
+    this.startAutoslide(); // Restart auto-slide after jumping to a specific image
   }
 }
