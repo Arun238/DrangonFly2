@@ -4,28 +4,27 @@
         <button mat-icon-button (click)="previousImage()" class="left-arrow">
           <mat-icon>chevron_left</mat-icon>
         </button>
-  
-        <img [src]="images[currentindex]" alt="Carousel Image" class="caurosel-image">
-  
+        <img [src]="images[currentindex]" alt="" class="caurosel-image" style="margin-right: 200px;" />
         <div class="dots-container">
-          <span *ngFor="let dot of images; let i = index" 
-                class="dot" 
-                [class.active]="i === currentindex" 
-                (click)="goToSlide(i)">
-          </span>
+          <span
+            *ngFor="let dot of images; let i = index"
+            class="dot"
+            [class.active]="i === currentindex"
+            (click)="goToSlide(i)"
+          ></span>
         </div>
-  
         <button mat-icon-button (click)="nextImage()" class="right-arrow">
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
   
       <div class="right-panel">
-        <img src="assets/drangonfly.png" alt="Logo" class="logo-image">
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-container">
+        <img src="assets/drangonfly.png" alt="" class="logo-image" />
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-conatiner">
           <div>
             <p style="font-weight: bold;">Email</p>
             <mat-form-field appearance="outline" class="full-width">
+              <!-- <mat-label>Email</mat-label> -->
               <input matInput formControlName="email" placeholder="Enter your email" />
               <mat-icon matSuffix>mail</mat-icon>
             </mat-form-field>
@@ -33,16 +32,16 @@
           <div>
             <p style="font-weight: bold;">Password</p>
             <mat-form-field appearance="outline" class="full-width">
+              <!-- <mat-label>Password</mat-label> -->
               <input matInput formControlName="password" type="password" placeholder="Enter your Password" />
               <mat-icon matSuffix>lock</mat-icon>
             </mat-form-field>
           </div>
-  
           <button mat-raised-button color="primary" class="login-button" (click)="onSubmit()">
             Login
           </button>
           <p class="signup-text">
-            Don't have an account? Sign up
+            Don't have an account? <a routerLink="/signup">Sign up</a>
           </p>
         </form>
       </div>
